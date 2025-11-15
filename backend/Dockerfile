@@ -1,7 +1,16 @@
 FROM node:24-alpine
-WORKDIR /usr/src/app
+
+RUN addgroup -g 1001 appgroup && adduser -G appgroup -u 1001 appuser -s /bin/sh -D
+
+WORKDIR /app
 COPY package*.json ./
+
+RUN npm install nodemon --save-dev
 RUN npm install
-COPY . .
+
+COPY --chown=appuser:appgroup . ./
 EXPOSE 3000
-CMD ["npm", "run", "dev"]
+
+USER appuser
+
+# CMD ["npm", "run", "dev"]

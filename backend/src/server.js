@@ -7,7 +7,7 @@ const port = process.env.PORT || 3000;
 
 // Root route
 app.get('/', (req, res) => {
-  res.send('Hello World! Ini adalah BE Predictive Maintenance Copilot.');
+  res.send('Hello World! HIHIHIHA!');
 });
 
 // Health route
