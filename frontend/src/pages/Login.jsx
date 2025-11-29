@@ -43,7 +43,7 @@ function LoginPage() {
 
   return (
     <div 
-      className="relative w-full h-screen flex items-center justify-center bg-cover bg-center"
+      className="relative w-full h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat px-4"
       style={{ backgroundImage: `url(${loginBg})` }}
     >
       {}
