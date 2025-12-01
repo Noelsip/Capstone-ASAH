@@ -5,7 +5,7 @@ import loginBg from '../assets/accenture_background.jpg';
 import Button from '../components/common/Button.jsx';
 import Input from '../components/common/Input.jsx';
 
-const BASE_URL = 'http://localhost:5000'
+const BASE_URL = 'http://localhost:3000'
 
 function LoginPage() {
   const [email, setEmail] = useState('');
@@ -43,7 +43,7 @@ function LoginPage() {
     }
 
     try {
-      const res = await fetch(`${BASE_URL}/api/auth/login`, {
+      const res = await fetch(`${BASE_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

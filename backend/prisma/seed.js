@@ -46,13 +46,15 @@ async function main() {
     console.log('Roles Created:', {adminRole, technicianRole, userRole})
 
     // Membuat user
-    const hashedPassword = await bcrypt.hash('password123', 10);
+    const hashedPassword = await bcrypt.hash('Password123', 10);
 
     const adminUser = await prisma.uSERS.upsert({
         where: {
             user_email: "admin@gmail.com"
         },
-        update: {},
+        update: {
+            user_pass: hashedPassword
+        },
         create: {
             name: 'Admin User',
             user_email: 'admin@gmail.com',
