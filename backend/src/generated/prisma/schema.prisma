@@ -1,0 +1,377 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ROLES {
+  id         String   @id @default(uuid()) @db.Uuid
+  role_name  String   @db.VarChar(100)
+  role_desc  String?  @db.Text
+  created_at DateTime @default(now())
+
+  users USERS[] @relation("RoleToUsers")
+
+  @@index([role_name])
+  @@map("roles")
+}
+
+model USERS {
+  id         String    @id @default(uuid()) @db.Uuid
+  role_id    String    @db.Uuid
+  name       String    @db.VarChar(255)
+  user_email String    @unique @db.VarChar(255)
+  user_pass  String    @db.VarChar(255)
+  is_active  Boolean   @default(true)
+  created_at DateTime  @default(now())
+  last_login DateTime?
+
+  // Relations
+  role                   ROLES                    @relation("RoleToUsers", fields: [role_id], references: [id])
+  inference_jobs         INFERENCE_JOBS[]
+  alert_acknowledgements ALERT_ACKNOWLEDGEMENTS[]
+  alert_assignments_to   ALERT_ASSIGNMENTS[]      @relation("AssignedTo")
+  alert_assignments_by   ALERT_ASSIGNMENTS[]      @relation("AssignedBy")
+  alert_resolutions      ALERT_RESOLUTIONS[]
+  alert_history          ALERT_HISTORY[]
+  maintenance_logs       MAINTENANCE_LOGS[]
+  chat_conversations     CHAT_CONVERSATIONS[]
+  chat_messages          CHAT_MESSAGES[]
+  alert                  ALERTS[]
+
+  @@index([role_id])
+  @@index([is_active])
+  @@index([created_at])
+  @@map("users")
+}
+
+model PRODUCT_TYPES {
+  id         Int      @id @default(autoincrement())
+  type_code  String   @db.Char(1)
+  type_name  String   @db.VarChar(50)
+  type_desc  String?  @db.Text
+  created_at DateTime @default(now())
+
+  machines MACHINES[]
+
+  @@unique([type_code])
+  @@map("product_types")
+}
+
+model MACHINES {
+  serial           String    @id @db.VarChar(100)
+  product_id       String    @unique @db.VarChar(100)
+  product_type_id  Int
+  name             String?   @db.VarChar(255)
+  location         String?   @db.VarChar(255)
+  run_time_seconds Int?
+  last_maintenance DateTime?
+  next_maintenance DateTime?
+  status           String?   @db.VarChar(50)
+  created_at       DateTime  @default(now())
+
+  product_type         PRODUCT_TYPES          @relation(fields: [product_type_id], references: [id])
+  sensor_readings      SENSOR_READINGS[]
+  alerts               ALERTS[]
+  maintenance_logs     MAINTENANCE_LOGS[]
+  chat_message_context CHAT_MESSAGE_CONTEXT[]
+
+  @@index([product_type_id])
+  @@index([status])
+  @@index([location])
+  @@index([next_maintenance])
+  @@map("machines")
+}
+
+model FAILURE_TYPES {
+  serial             String  @id @db.VarChar(100)
+  name               String  @db.VarChar(255)
+  failure_desc       String? @db.Text
+  category           String? @db.VarChar(100)
+  recommended_action String? @db.Text
+
+  predictions PREDICTIONS[]
+
+  @@index([category])
+  @@map("failure_types")
+}
+
+model SENSOR_READINGS {
+  id                    BigInt   @id @default(autoincrement()) @db.BigInt
+  machine_serial        String
+  reading_timestamp     DateTime
+  air_temperature_k     Float?
+  process_temperature_k Float?
+  rotational_speed_rpm  Int?
+  torque_nm             Float?
+  tool_wear_min         Int?
+  raw_data              Json?
+  created_at            DateTime @default(now())
+
+  machine     MACHINES      @relation(fields: [machine_serial], references: [serial])
+  predictions PREDICTIONS[]
+
+  @@index([machine_serial])
+  @@index([reading_timestamp])
+  @@index([machine_serial, reading_timestamp])
+  @@map("sensor_readings")
+}
+
+model INFERENCE_JOBS {
+  id                BigInt    @id @default(autoincrement()) @db.BigInt
+  user_id           String    @db.Uuid
+  file_path         String?   @db.VarChar(1024)
+  model_version     String?   @db.VarChar(100)
+  status            String    @db.VarChar(50)
+  total_records     Int?
+  processed_records Int?
+  started_at        DateTime?
+  finished_at       DateTime?
+  error_message     String?   @db.Text
+  created_at        DateTime  @default(now())
+
+  user        USERS         @relation(fields: [user_id], references: [id])
+  predictions PREDICTIONS[]
+
+  @@index([user_id])
+  @@index([status])
+  @@index([created_at])
+  @@map("inference_jobs")
+}
+
+model PREDICTIONS {
+  id                  BigInt   @id @default(autoincrement()) @db.BigInt
+  sensor_id           BigInt?
+  inference_jobs_id   BigInt?
+  target              Int
+  failure_type_serial String?  @db.VarChar(100)
+  confidance_score    Float?
+  severity            String?  @db.VarChar(50)
+  model_output        Json?
+  predicted_at        DateTime
+  created_at          DateTime @default(now())
+
+  sensor_reading       SENSOR_READINGS?       @relation(fields: [sensor_id], references: [id])
+  inference_job        INFERENCE_JOBS?        @relation(fields: [inference_jobs_id], references: [id])
+  failure_type         FAILURE_TYPES?         @relation(fields: [failure_type_serial], references: [serial])
+  alert                ALERTS[]
+  chat_message_context CHAT_MESSAGE_CONTEXT[]
+
+  @@index([sensor_id])
+  @@index([inference_jobs_id])
+  @@index([failure_type_serial])
+  @@index([severity])
+  @@index([predicted_at])
+  @@index([target])
+  @@map("predictions")
+}
+
+model ALERTS {
+  id             String   @id @db.VarChar(50)
+  prediction_id  BigInt?
+  machine_serial String?  @db.VarChar(100)
+  status         String   @db.VarChar(50)
+  priority       String?  @db.VarChar(5)
+  severity       String?  @db.VarChar(50)
+  title          String?  @db.VarChar(255)
+  alert_desc     String?  @db.Text
+  created_by     String?  @db.Uuid
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  prediction           PREDICTIONS?             @relation(fields: [prediction_id], references: [id])
+  machine              MACHINES?                @relation(fields: [machine_serial], references: [serial])
+  creator              USERS?                   @relation(fields: [created_by], references: [id])
+  acknowledgements     ALERT_ACKNOWLEDGEMENTS[]
+  assignments          ALERT_ASSIGNMENTS[]
+  resolutions          ALERT_RESOLUTIONS[]
+  history              ALERT_HISTORY[]
+  chat_message_context CHAT_MESSAGE_CONTEXT[]
+
+  @@index([prediction_id])
+  @@index([machine_serial])
+  @@index([status])
+  @@index([priority])
+  @@index([severity])
+  @@index([created_by])
+  @@index([created_at])
+  @@index([status, priority])
+  @@map("alerts")
+}
+
+model ALERT_ACKNOWLEDGEMENTS {
+  id                BigInt   @id @default(autoincrement()) @db.BigInt
+  alert_id          String   @db.VarChar(50)
+  acknowledged_by   String   @db.Uuid
+  acknowledged_note String?  @db.Text
+  acknowledged_at   DateTime
+
+  alert ALERTS @relation(fields: [alert_id], references: [id])
+  user  USERS  @relation(fields: [acknowledged_by], references: [id])
+
+  @@index([alert_id])
+  @@index([acknowledged_by])
+  @@index([acknowledged_at])
+  @@map("alert_acknowledgements")
+}
+
+model ALERT_ASSIGNMENTS {
+  id            BigInt   @id @default(autoincrement()) @db.BigInt
+  alert_id      String   @db.VarChar(50)
+  assigned_to   String   @db.Uuid
+  assigned_by   String   @db.Uuid
+  assigned_note String?  @db.Text
+  assigned_at   DateTime
+
+  alert   ALERTS @relation(fields: [alert_id], references: [id])
+  to_user USERS  @relation("AssignedTo", fields: [assigned_to], references: [id])
+  by_user USERS  @relation("AssignedBy", fields: [assigned_by], references: [id])
+
+  @@index([alert_id])
+  @@index([assigned_to])
+  @@index([assigned_by])
+  @@index([assigned_at])
+  @@map("alert_assignments")
+}
+
+model ALERT_RESOLUTIONS {
+  id               BigInt   @id @default(autoincrement()) @db.BigInt
+  alert_id         String   @db.VarChar(50)
+  resolved_by      String   @db.Uuid
+  resolution_notes String?  @db.Text
+  resolution_type  String?  @db.VarChar(100)
+  resolved_at      DateTime
+
+  alert ALERTS @relation(fields: [alert_id], references: [id])
+  user  USERS  @relation(fields: [resolved_by], references: [id])
+
+  @@index([alert_id])
+  @@index([resolved_by])
+  @@index([resolution_type])
+  @@index([resolved_at])
+  @@map("alert_resolutions")
+}
+
+model ALERT_HISTORY {
+  id         BigInt   @id @default(autoincrement()) @db.BigInt
+  alert_id   String   @db.VarChar(50)
+  user_id    String   @db.Uuid
+  action     String   @db.VarChar(100)
+  old_status String?  @db.VarChar(50)
+  new_status String?  @db.VarChar(50)
+  comment    String?  @db.Text
+  metadata   Json?
+  created_at DateTime @default(now())
+
+  alert ALERTS @relation(fields: [alert_id], references: [id])
+  user  USERS  @relation(fields: [user_id], references: [id])
+
+  @@index([alert_id])
+  @@index([user_id])
+  @@index([action])
+  @@index([created_at])
+  @@map("alert_history")
+}
+
+model MAINTENANCE_LOGS {
+  id                BigInt    @id @default(autoincrement()) @db.BigInt
+  machine_serial    String    @db.VarChar(100)
+  performed_by      String    @db.Uuid
+  maintenance_type  String    @db.VarChar(100)
+  maintenance_notes String?   @db.Text
+  actions_taken     String?   @db.Text
+  parts_replaced    String?   @db.Text
+  duration_hours    Float?
+  status            String    @db.VarChar(50)
+  scheduled_at      DateTime?
+  started_at        DateTime?
+  completed_at      DateTime?
+  created_at        DateTime  @default(now())
+
+  machine              MACHINES               @relation(fields: [machine_serial], references: [serial])
+  user                 USERS                  @relation(fields: [performed_by], references: [id])
+  chat_message_context CHAT_MESSAGE_CONTEXT[]
+
+  @@index([machine_serial])
+  @@index([performed_by])
+  @@index([maintenance_type])
+  @@index([status])
+  @@index([scheduled_at])
+  @@index([completed_at])
+  @@map("maintenance_logs")
+}
+
+model CHAT_CONVERSATIONS {
+  id                  String    @id @default(uuid()) @db.Uuid
+  user_id             String    @db.Uuid
+  conversations_type  String?   @db.VarChar(50)
+  status              String?   @db.VarChar(20)
+  conversations_title String?   @db.VarChar(255)
+  started_at          DateTime  @default(now())
+  last_message_at     DateTime?
+  closed_at           DateTime?
+
+  user     USERS           @relation(fields: [user_id], references: [id])
+  messages CHAT_MESSAGES[]
+
+  @@index([user_id])
+  @@index([status])
+  @@index([started_at])
+  @@index([last_message_at])
+  @@map("chat_conversations")
+}
+
+model CHAT_MESSAGES {
+  id                   BigInt   @id @default(autoincrement()) @db.BigInt
+  conversation_id      String   @db.Uuid
+  user_id              String?  @db.Uuid
+  sender_type          String   @db.VarChar(20)
+  message_content      String   @db.Text
+  ai_response_metadata Json?
+  sent_at              DateTime @default(now())
+
+  conversation CHAT_CONVERSATIONS     @relation(fields: [conversation_id], references: [id])
+  user         USERS?                 @relation(fields: [user_id], references: [id])
+  context      CHAT_MESSAGE_CONTEXT[]
+
+  @@index([conversation_id])
+  @@index([user_id])
+  @@index([sender_type])
+  @@index([sent_at])
+  @@map("chat_messages")
+}
+
+model CHAT_MESSAGE_CONTEXT {
+  id                 BigInt   @id @default(autoincrement()) @db.BigInt
+  messages_id        BigInt
+  context_type       String   @db.VarChar(50)
+  alert_id           String?  @db.VarChar(50)
+  machine_serial     String?  @db.VarChar(100)
+  prediction_id      BigInt?
+  maintenance_log_id BigInt?
+  created_at         DateTime @default(now())
+
+  messages        CHAT_MESSAGES     @relation(fields: [messages_id], references: [id])
+  alert           ALERTS?           @relation(fields: [alert_id], references: [id])
+  machine         MACHINES?         @relation(fields: [machine_serial], references: [serial])
+  prediction      PREDICTIONS?      @relation(fields: [prediction_id], references: [id])
+  maintenance_log MAINTENANCE_LOGS? @relation(fields: [maintenance_log_id], references: [id])
+
+  @@index([messages_id])
+  @@index([context_type])
+  @@index([alert_id])
+  @@index([machine_serial])
+  @@index([prediction_id])
+  @@index([maintenance_log_id])
+  @@map("chat_message_context")
+}
