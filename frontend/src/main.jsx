@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import {
   createBrowserRouter,
   RouterProvider,
+  Navigate,
 } from 'react-router-dom';
 import './index.css';
 
@@ -35,13 +36,13 @@ import SystemPage from './pages/settings/System.jsx';
 // --- DEFINISI ROUTER UTAMA ---
 const router = createBrowserRouter([
   {
-    path: '/',
-    element: <App />, 
-    errorElement: <NotFoundPage />,
-    children: [
-      {
-        index: true, 
-        element: <DashboardPage />,
+     path: '/',
+     element: <App />, 
+     errorElement: <NotFoundPage />,
+     children: [
+       {
+     index: true, 
+       element: <Navigate to="/login" replace />, 
       },
       {
         path: '/dashboard',
