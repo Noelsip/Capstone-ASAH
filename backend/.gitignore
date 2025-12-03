@@ -1,0 +1,76 @@
+# Node
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+pnpm-debug.log
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Env - PENTING: jangan commit file environment
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+.env.*.local
+
+# Logs
+logs/
+*.log
+debug.log
+*.pid
+*.seed
+*.pid.lock
+
+# System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Build output
+dist/
+build/
+out/
+
+# Docker data
+docker-data/
+.tmp/
+*.tar
+postgres-data/
+
+# Editor & IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# Testing & Coverage
+coverage/
+.nyc_output/
+*.lcov
+
+# Prisma - PENTING
+prisma/*.db
+prisma/*.db-journal
+# Jangan ignore migrations kecuali development
+# prisma/migrations/
+
+# Prisma generated client - HARUS di-ignore
+src/generated/
+/src/generated/prisma/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# OS generated
+.Spotlight-V100
+.Trashes
+ehthumbs.db
