@@ -1,13 +1,14 @@
 import express from 'express';
 import auth from '../controllers/auth.js';
-import authMiddleware  from '../middleware/authMiddleware.js';
+import { authenticate } from '../middleware/authMiddleware.js';
+import { authRateLimiter } from '../middleware/rateLimiter.js';
 
 const router = express.Router();
 
-// Public routes
-router.post('/login', auth.login);
+// Public routes - apply auth rate limiter untuk prevent brute force
+router.post('/login', authRateLimiter, auth.login);
 
 // Protected routes
-router.get('/profile', authMiddleware.verifyToken, auth.getProfile);
+router.get('/profile', authenticate, auth.getProfile);
 
 export default router;

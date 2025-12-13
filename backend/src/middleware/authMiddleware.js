@@ -101,9 +101,15 @@ export const authorize = (...allowedRoles) => {
  */
 export const requireRole = (...roles) => authorize(...roles);
 
+/**
+ * Alias untuk authenticate (backward compatibility)
+ */
+export const verifyToken = authenticate;
+
 // Default export untuk backward compatibility
 export default {
   authenticate,
   authorize,
-  requireRole
+  requireRole,
+  verifyToken
 };

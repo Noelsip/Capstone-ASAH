@@ -121,9 +121,10 @@ model SENSOR_READINGS {
   machine                   MACHINES   @relation(fields: [machine_serial], references: [serial])
   predictions               PREDICTIONS[]
 
-  @@index([machine_serial])
-  @@index([reading_timestamp])
-  @@index([machine_serial, reading_timestamp])
+  @@index([machine_serial], map: "idx_sensor_machine")
+  @@index([reading_timestamp], map: "idx_sensor_timestamp")
+  @@index([machine_serial, reading_timestamp], map: "idx_sensor_machine_timestamp")
+  @@index([reading_timestamp(sort: Desc)], map: "idx_sensor_timestamp_desc")
   @@map("sensor_readings")
 }
 
