@@ -1,5 +1,5 @@
 import express from 'express';
-import auth from '../controllers/auth.js';
+import auth from '../controllers/authController.js';
 import { authenticate } from '../middleware/authMiddleware.js';
 import { authRateLimiter } from '../middleware/rateLimiter.js';
 
