@@ -1,14 +1,17 @@
-// src/pages/Login.jsx
 import React, { useState } from 'react';
-import { Link }from 'react-router-dom';
+import { Link, useNavigate }from 'react-router-dom';
 import loginBg from '../assets/accenture_background.jpg';
 import Button from '../components/common/Button.jsx';
 import Input from '../components/common/Input.jsx';
+
+const BASE_URL = 'http://localhost:3000'
 
 function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(''); // State untuk menyimpan pesan error
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   // Fungsi untuk validasi password 
   const validatePassword = (pwd) => {
@@ -17,13 +20,15 @@ function LoginPage() {
     return regex.test(pwd);
   };
 
-  const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    setError(''); 
+    setError('');
+    setIsLoading(true);
 
     // 1. Cek apakah field kosong
     if (!email || !password) {
       setError('Email dan Password tidak boleh kosong.');
+      setIsLoading(false);
       return;
     }
 
@@ -32,13 +37,45 @@ function LoginPage() {
       setError(
         'Password harus minimal 6 karakter, mengandung kombinasi huruf besar, huruf kecil, dan angka.'
       );
+      setIsLoading(false);
       return;
     }
 
-    // Jika lolos semua validasi
-    console.log('Validasi Sukses! Mencoba login...', { email, password });
-    // TODO untuk integrasi setelah selesai: Panggil API backend di sini nanti
-    // navigate('/dashboard'); //  redirect nanti
+    try {
+      const res = await fetch(`${BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!res.ok) {
+        // coba ambil pesan error dari backend
+        let msg = 'Login gagal. Periksa kembali email dan kata sandi Anda.';
+        try {
+          const data = await res.json();
+          if (data?.message) msg = data.message;
+        } catch (_) {}
+        throw new Error(msg);
+      }
+
+      const data = await res.json();
+      // Contoh: backend mengirim { token, user }
+      if (data.token) {
+        localStorage.setItem('authToken', data.token);
+      }
+      if (data.user) {
+        localStorage.setItem('authUser', JSON.stringify(data.user));
+      }
+
+      // Redirect setelah login berhasil
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.message || 'Terjadi kesalahan saat login.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -117,7 +154,7 @@ function LoginPage() {
             </div>
 
             <Button type="submit" className="py-3 text-lg shadow-lg hover:shadow-xl transition-all">
-              Login
+              {isLoading ? 'Memproses...' : 'Login'}
             </Button>
           </form>
           

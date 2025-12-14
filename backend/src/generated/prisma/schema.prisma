@@ -121,10 +121,16 @@ model SENSOR_READINGS {
   machine     MACHINES      @relation(fields: [machine_serial], references: [serial])
   predictions PREDICTIONS[]
 
+<<<<<<< HEAD
   @@index([machine_serial], map: "idx_sensor_machine")
   @@index([reading_timestamp], map: "idx_sensor_timestamp")
   @@index([machine_serial, reading_timestamp], map: "idx_sensor_machine_timestamp")
   @@index([reading_timestamp(sort: Desc)], map: "idx_sensor_timestamp_desc")
+=======
+  @@index([machine_serial])
+  @@index([reading_timestamp])
+  @@index([machine_serial, reading_timestamp])
+>>>>>>> 54629d415319309c0482797d63f8f8a89e84480a
   @@map("sensor_readings")
 }
 

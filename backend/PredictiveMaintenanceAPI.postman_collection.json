@@ -1,0 +1,1232 @@
+{
+	"info": {
+		"_postman_id": "59745eb7-3d55-4bc5-beb0-d2387dcbeffa",
+		"name": "Predictive Maintenance API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "42895512",
+		"_collection_link": "https://sss000-6416.postman.co/workspace/sss-Workspace~065b6bbf-dd7f-4798-89dd-a40ae3838c24/collection/42895512-59745eb7-3d55-4bc5-beb0-d2387dcbeffa?source=collection_link"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "admin-login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    if (jsonData.token) {\r",
+									"        pm.environment.set('admin-token', jsonData.token);\r",
+									"    }\r",
+									"    if (jsonData.user && jsonData.user.user_id) {\r",
+									"        pm.environment.set('user_id', jsonData.user.user_id);\r",
+									"    }\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    // Administrator\r\n    \"email\": \"admin@gmail.com\",\r\n    \"password\": \"Password123\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{Base_Url}}/auth/login",
+							"host": [
+								"{{Base_Url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "teknisi-login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    if (jsonData.token) {\r",
+									"        pm.environment.set('teknisi-token', jsonData.token);\r",
+									"    }\r",
+									"    if (jsonData.user && jsonData.user.user_id) {\r",
+									"        pm.environment.set('user_id', jsonData.user.user_id);\r",
+									"    }\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n      // Teknisi\n    \"email\": \"tech1@gmail.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{Base_Url}}/auth/login",
+							"host": [
+								"{{Base_Url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "user-login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    if (jsonData.token) {\r",
+									"        pm.environment.set('user-token', jsonData.token);\r",
+									"    }\r",
+									"    if (jsonData.user && jsonData.user.user_id) {\r",
+									"        pm.environment.set('user_id', jsonData.user.user_id);\r",
+									"    }\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n        // User biasa\n    \"email\": \"user1@gmail.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{Base_Url}}/auth/login",
+							"host": [
+								"{{Base_Url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "profil-admin",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin-token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Base_Url}}/auth/profile",
+							"host": [
+								"{{Base_Url}}"
+							],
+							"path": [
+								"auth",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "profil-teknisi",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{teknisi-token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Base_Url}}/auth/profile",
+							"host": [
+								"{{Base_Url}}"
+							],
+							"path": [
+								"auth",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "user-profil",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user-token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Base_Url}}/auth/profile",
+							"host": [
+								"{{Base_Url}}"
+							],
+							"path": [
+								"auth",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Machine",
+			"item": [
+				{
+					"name": "Update Machine Status",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"maintenance\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/machines/M001-A/status",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"machines",
+								"M001-A",
+								"status"
+							]
+						},
+						"description": "Update status mesin.\n\n**Path Parameters:**\n- serial: string\n\n**Request Body:**\n- status: string (active|inactive|maintenance|warning)\n\n**Response:**\n- 200: Status updated\n- 400: Invalid status value\n- 404: Machine tidak ditemukan"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Machines",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{teknisi-token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/machines?status=active&location=Plant 1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"machines"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "active",
+									"description": "Filter by status: active, inactive, maintenance, warning"
+								},
+								{
+									"key": "location",
+									"value": "Plant 1",
+									"description": "Filter by location"
+								},
+								{
+									"key": "type",
+									"value": "L",
+									"description": "Filter by product type",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Mendapatkan list semua mesin dengan filter opsional.\n\n**Query Parameters:**\n- status: string (active|inactive|maintenance|warning)\n- location: string\n- type: string (L|M|H)\n\n**Response:**\n- 200: Array of machines dengan sensor terbaru dan stats"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Machine Detail",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{teknisi-token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/machines/M001-A",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"machines",
+								"M001-A"
+							]
+						},
+						"description": "Mendapatkan detail mesin berdasarkan serial.\n\n**Path Parameters:**\n- serial: string (machine serial number)\n\n**Response:**\n- 200: Machine detail dengan sensor readings, alerts, dan maintenance logs terbaru\n- 404: Machine tidak ditemukan"
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Sensor Data",
+			"item": [
+				{
+					"name": "Create Sensor Data",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin-token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"machine_serial\": \"M001-A\",\n  \"air_temperature_k\": 298.1,\n  \"process_temperature_k\": 308.6,\n  \"rotational_speed_rpm\": 1551,\n  \"torque_nm\": 42.8,\n  \"tool_wear_min\": 0\n}"
+						},
+						"url": {
+							"raw": "{{Base_Url}}/sensor-data",
+							"host": [
+								"{{Base_Url}}"
+							],
+							"path": [
+								"sensor-data"
+							]
+						},
+						"description": "Menyimpan data sensor baru dari IoT device atau frontend.\n\n**Request Body:**\n- machine_serial: string (required)\n- air_temperature_k: number\n- process_temperature_k: number\n- rotational_speed_rpm: number\n- torque_nm: number\n- tool_wear_min: number\n\n**Response:**\n- 201: Data sensor berhasil disimpan\n- 400: machine_serial kosong\n- 404: Machine tidak ditemukan"
+					},
+					"response": []
+				},
+				{
+					"name": "Batch Create Sensor Data",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin-token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"readings\": [\n    {\n      \"machine_serial\": \"M001-A\",\n      \"air_temperature_k\": 298.1,\n      \"process_temperature_k\": 308.6,\n      \"rotational_speed_rpm\": 1551,\n      \"torque_nm\": 42.8,\n      \"tool_wear_min\": 0\n    },\n    {\n      \"machine_serial\": \"M001-A\",\n      \"air_temperature_k\": 298.2,\n      \"process_temperature_k\": 308.7,\n      \"rotational_speed_rpm\": 1408,\n      \"torque_nm\": 46.3,\n      \"tool_wear_min\": 3\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{Base_Url}}/sensor-data/batch",
+							"host": [
+								"{{Base_Url}}"
+							],
+							"path": [
+								"sensor-data",
+								"batch"
+							]
+						},
+						"description": "Batch insert untuk multiple sensor data sekaligus.\n\n**Request Body:**\n- readings: array of sensor data objects\n\n**Response:**\n- 201: Jumlah data yang berhasil disimpan\n- 400: readings array kosong\n- 404: Beberapa machine_serial tidak ditemukan"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Latest Sensor",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin-token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{Base_Url}}/sensor-data/latest?machine_serial=M001-A",
+							"host": [
+								"{{Base_Url}}"
+							],
+							"path": [
+								"sensor-data",
+								"latest"
+							],
+							"query": [
+								{
+									"key": "machine_serial",
+									"value": "M001-A"
+								}
+							]
+						},
+						"description": "Mendapatkan data sensor terbaru.\n\n**Query Parameters:**\n- machine_serial: string (optional)\n\n**Response:**\n- 200: Latest sensor data\n- 404: No sensor data found"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Sensor History",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin-token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{Base_Url}}/sensor-data?machine_serial=M001-A&limit=50&offset=0&start_date=2024-01-01&end_date=2024-12-31",
+							"host": [
+								"{{Base_Url}}"
+							],
+							"path": [
+								"sensor-data"
+							],
+							"query": [
+								{
+									"key": "machine_serial",
+									"value": "M001-A"
+								},
+								{
+									"key": "limit",
+									"value": "50",
+									"description": "Default: 100"
+								},
+								{
+									"key": "offset",
+									"value": "0",
+									"description": "Default: 0"
+								},
+								{
+									"key": "start_date",
+									"value": "2024-01-01",
+									"description": "ISO date format"
+								},
+								{
+									"key": "end_date",
+									"value": "2024-12-31",
+									"description": "ISO date format"
+								}
+							]
+						},
+						"description": "Mendapatkan history sensor data dengan pagination dan filter.\n\n**Query Parameters:**\n- machine_serial: string\n- limit: number (default: 100)\n- offset: number (default: 0)\n- start_date: ISO date string\n- end_date: ISO date string\n\n**Response:**\n- 200: Array of sensor data dengan pagination info"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Aggregated Data (Charting)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin-token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{Base_Url}}/sensor-data/aggregated?machine_serial=M001-A&interval=1h&start_date=2024-01-01&end_date=2024-01-31",
+							"host": [
+								"{{Base_Url}}"
+							],
+							"path": [
+								"sensor-data",
+								"aggregated"
+							],
+							"query": [
+								{
+									"key": "machine_serial",
+									"value": "M001-A"
+								},
+								{
+									"key": "interval",
+									"value": "1h",
+									"description": "Options: 1m, 5m, 15m, 1h, 1d"
+								},
+								{
+									"key": "start_date",
+									"value": "2024-01-01"
+								},
+								{
+									"key": "end_date",
+									"value": "2024-01-31"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Sensor Statistics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/sensor-data/stats?machine_serial=M001-A&period=24h",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sensor-data",
+								"stats"
+							],
+							"query": [
+								{
+									"key": "machine_serial",
+									"value": "M001-A"
+								},
+								{
+									"key": "period",
+									"value": "24h",
+									"description": "Options: 1h, 24h, 7d, 30d"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Sensor data management endpoints"
+		},
+		{
+			"name": "Chatbot",
+			"item": [
+				{
+					"name": "Send Message (New Conversation)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin-token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"message\": \"Halo, apa kabar?\"\n}"
+						},
+						"url": {
+							"raw": "{{Base_Url}}/chatbot/message",
+							"host": [
+								"{{Base_Url}}"
+							],
+							"path": [
+								"chatbot",
+								"message"
+							]
+						},
+						"description": "Mengirim pesan ke chatbot AI (membuat conversation baru).\n\n**Request Body:**\n- message: string (required)\n- conversation_id: uuid (optional, jika tidak ada akan create new)\n- context: object (optional)\n\n**Response:**\n- 200: User message dan AI response\n- 400: Message kosong\n- 503: Chatbot service tidak tersedia"
+					},
+					"response": []
+				},
+				{
+					"name": "Send Message (Existing Conversation)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin-token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"conversation_id\": \"067e71c8-e6d9-4a3f-90df-d0f18d5b4658\",\n  \"message\": \"Bagaimana status mesin M001-A?\"\n}"
+						},
+						"url": {
+							"raw": "{{Base_Url}}/chatbot/message",
+							"host": [
+								"{{Base_Url}}"
+							],
+							"path": [
+								"chatbot",
+								"message"
+							]
+						},
+						"description": "Mengirim pesan ke conversation yang sudah ada."
+					},
+					"response": []
+				},
+				{
+					"name": "Send Message with Machine Context",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin-token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"message\": \"Bagaimana kondisi mesin ini?\",\n  \"context\": {\n    \"machine_serial\": \"M001-A\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{Base_Url}}/chatbot/message",
+							"host": [
+								"{{Base_Url}}"
+							],
+							"path": [
+								"chatbot",
+								"message"
+							]
+						},
+						"description": "Mengirim pesan dengan context mesin.\n\nChatbot akan mendapat informasi tambahan tentang:\n- Machine details\n- Latest sensor readings\n- Machine status"
+					},
+					"response": []
+				},
+				{
+					"name": "Send Message with Alert Context",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin-token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"message\": \"Apa yang harus saya lakukan dengan alert ini?\",\n  \"context\": {\n    \"alert_id\": \"ALT-1234567890-M001\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{Base_Url}}/chatbot/message",
+							"host": [
+								"{{Base_Url}}"
+							],
+							"path": [
+								"chatbot",
+								"message"
+							]
+						},
+						"description": "Mengirim pesan dengan context alert.\n\nChatbot akan mendapat informasi tentang:\n- Alert details\n- Priority dan severity\n- Failure type\n- Prediction confidence"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Conversations",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin-token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{Base_Url}}/chatbot/conversations?status=active&limit=20&offset=0",
+							"host": [
+								"{{Base_Url}}"
+							],
+							"path": [
+								"chatbot",
+								"conversations"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "active",
+									"description": "Filter by status: active, archived"
+								},
+								{
+									"key": "limit",
+									"value": "20",
+									"description": "Default: 20"
+								},
+								{
+									"key": "offset",
+									"value": "0",
+									"description": "Default: 0"
+								}
+							]
+						},
+						"description": "Mendapatkan semua conversation milik user.\n\n**Query Parameters:**\n- status: string (active|archived)\n- limit: number (default: 20)\n- offset: number (default: 0)\n\n**Response:**\n- 200: Array of conversations dengan last message dan message count"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Conversation",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin-token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Troubleshooting Machine M001-A\",\n  \"type\": \"maintenance_support\"\n}"
+						},
+						"url": {
+							"raw": "{{Base_Url}}/chatbot/conversations",
+							"host": [
+								"{{Base_Url}}"
+							],
+							"path": [
+								"chatbot",
+								"conversations"
+							]
+						},
+						"description": "Membuat conversation baru.\n\n**Request Body:**\n- title: string (optional)\n- type: string (default: maintenance_support)\n\n**Response:**\n- 201: Conversation created"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Conversation Messages",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin-token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin-token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{Base_Url}}/chatbot/conversations/00763637-228d-40c3-8e20-ddca208bfeec/messages?limit=50&offset=0",
+							"host": [
+								"{{Base_Url}}"
+							],
+							"path": [
+								"chatbot",
+								"conversations",
+								"00763637-228d-40c3-8e20-ddca208bfeec",
+								"messages"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "50",
+									"description": "Default: 50"
+								},
+								{
+									"key": "offset",
+									"value": "0",
+									"description": "Default: 0"
+								}
+							]
+						},
+						"description": "Mendapatkan history messages dari conversation.\n\n**Path Parameters:**\n- id: uuid (conversation_id)\n\n**Query Parameters:**\n- limit: number (default: 50)\n- offset: number (default: 0)\n\n**Response:**\n- 200: Array of messages dengan user info dan context\n- 403: Access denied (bukan pemilik conversation)\n- 404: Conversation tidak ditemukan"
+					},
+					"response": []
+				}
+			],
+			"description": "AI Chatbot endpoints - integrasi dengan chatbot ML model"
+		},
+		{
+			"name": "Predictions",
+			"item": [
+				{
+					"name": "Analyze Maintenance (with new sensor data)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin-token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"machine_serial\": \"M001-A\",\n  \"sensor_data\": {\n    \"air_temperature_k\": 298.1,\n    \"process_temperature_k\": 308.6,\n    \"rotational_speed_rpm\": 1551,\n    \"torque_nm\": 42.8,\n    \"tool_wear_min\": 0\n  }\n}"
+						},
+						"url": {
+							"raw": "{{Base_Url}}/predictions/analize",
+							"host": [
+								"{{Base_Url}}"
+							],
+							"path": [
+								"predictions",
+								"analize"
+							]
+						},
+						"description": "Menganalisis maintenance dengan data sensor baru.\n\n**Flow:**\n1. Simpan sensor_data ke database\n2. Kirim ke ML model untuk prediksi\n3. Simpan hasil prediksi\n4. Buat alert jika prediksi positif (target=1)\n5. Update status mesin\n\n**Request Body:**\n- machine_serial: string (required)\n- sensor_data: object (required)\n  - air_temperature_k: number\n  - process_temperature_k: number\n  - rotational_speed_rpm: number\n  - torque_nm: number\n  - tool_wear_min: number\n\n**Response:**\n- 200: Analysis result dengan prediction, alert (jika ada), dan ML response\n- 400: machine_serial kosong\n- 404: Machine tidak ditemukan\n- 503: ML service tidak tersedia"
+					},
+					"response": []
+				},
+				{
+					"name": "Analyze Maintenance (use existing sensor)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin-token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"machine_serial\": \"M001-A\"\n}"
+						},
+						"url": {
+							"raw": "{{Base_Url}}/predictions/analize",
+							"host": [
+								"{{Base_Url}}"
+							],
+							"path": [
+								"predictions",
+								"analize"
+							]
+						},
+						"description": "Menganalisis maintenance menggunakan data sensor terbaru dari database.\n\n**Request Body:**\n- machine_serial: string (required)\n\n**Response:**\n- 200: Analysis result\n- 404: Machine atau sensor data tidak ditemukan"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Predictions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin-token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{Base_Url}}/predictions?machine_serial=M001-A&severity=high&limit=50&offset=0",
+							"host": [
+								"{{Base_Url}}"
+							],
+							"path": [
+								"predictions"
+							],
+							"query": [
+								{
+									"key": "machine_serial",
+									"value": "M001-A",
+									"description": "Filter by machine"
+								},
+								{
+									"key": "severity",
+									"value": "high",
+									"description": "Filter by severity: low, medium, high"
+								},
+								{
+									"key": "limit",
+									"value": "50",
+									"description": "Default: 50"
+								},
+								{
+									"key": "offset",
+									"value": "0",
+									"description": "Default: 0"
+								}
+							]
+						},
+						"description": "Mendapatkan semua prediksi dengan filter.\n\n**Query Parameters:**\n- machine_serial: string\n- severity: string (low|medium|high)\n- limit: number (default: 50)\n- offset: number (default: 0)\n\n**Response:**\n- 200: Array of predictions dengan pagination"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Latest Prediction",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin-token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{Base_Url}}/predictions/latest?machine_serial=M001-A",
+							"host": [
+								"{{Base_Url}}"
+							],
+							"path": [
+								"predictions",
+								"latest"
+							],
+							"query": [
+								{
+									"key": "machine_serial",
+									"value": "M001-A",
+									"description": "Filter by machine (optional)"
+								}
+							]
+						},
+						"description": "Mendapatkan prediksi terbaru.\n\n**Query Parameters:**\n- machine_serial: string (optional)\n\n**Response:**\n- 200: Latest prediction data\n- 404: No prediction found"
+					},
+					"response": []
+				}
+			],
+			"description": "ML Prediction endpoints - integrasi dengan ML model untuk predictive maintenance"
+		},
+		{
+			"name": "Health Check",
+			"item": [
+				{
+					"name": "Health Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Base_Url}}/health",
+							"host": [
+								"{{Base_Url}}"
+							],
+							"path": [
+								"health"
+							]
+						},
+						"description": "Check API health status dan ML services availability."
+					},
+					"response": []
+				},
+				{
+					"name": "Root Endpoint",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Base_Url}}/",
+							"host": [
+								"{{Base_Url}}"
+							],
+							"path": [
+								""
+							]
+						},
+						"description": "Get API information dan available endpoints."
+					},
+					"response": []
+				}
+			],
+			"description": "Health check dan API info endpoints"
+		}
+	]
+}
