@@ -4,6 +4,7 @@ RUN addgroup -g 1001 appgroup && adduser -G appgroup -u 1001 appuser -s /bin/sh 
 
 WORKDIR /app
 COPY package*.json ./
+COPY prisma/ ./prisma/ 
 
 RUN npm install nodemon --save-dev
 RUN npm install
@@ -13,4 +14,4 @@ EXPOSE 3000
 
 USER appuser
 
-# CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "dev"]
