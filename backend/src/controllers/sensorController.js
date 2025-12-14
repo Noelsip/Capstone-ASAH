@@ -5,14 +5,6 @@ const prisma = new PrismaClient();
 /**
  * Menyimpan data sensor baru (dari IoT device/frontend)
  * POST /sensor-data
- * Body: {
- *   machine_serial: string,
- *   air_temperature_k: number,
- *   process_temperature_k: number,
- *   rotational_speed_rpm: number,
- *   torque_nm: number,
- *   tool_wear_min: number
- * }
  */
 export const createSensorData = async (req, res) => {
     try {
@@ -201,9 +193,6 @@ export const getSensorHistory = async (req, res) => {
 /**
  * Batch insert data sensor (untuk bulk import)
  * POST /sensor-data/batch
- * Body: {
- *   readings: [{ machine_serial, air_temperature_k, ... }, ...]
- * }
  */
 export const createBatchSensorData = async (req, res) => {
     try {
@@ -291,27 +280,30 @@ export const getAggregatedSensorData = async (req, res) => {
             });
         }
 
-        // Convert interval to PostgreSQL interval
-        const intervalMap = {
-            '1m': '1 minute',
-            '5m': '5 minutes',
-            '15m': '15 minutes',
-            '1h': '1 hour',
-            '1d': '1 day'
-        };
-
-        const pgInterval = intervalMap[interval];
-
-        if (!pgInterval) {
+        // Map interval to PostgreSQL date_trunc unit or bucketing expression
+        let groupBySQL;
+        if (interval === '1m') {
+            groupBySQL = `date_trunc('minute', reading_timestamp)`;
+        } else if (interval === '5m' || interval === '15m') {
+            const n = interval === '5m' ? 5 : 15;
+            groupBySQL = `
+                date_trunc('hour', reading_timestamp) +
+                floor(extract(minute from reading_timestamp) / ${n}) * interval '${n} minutes'
+            `;
+        } else if (interval === '1h') {
+            groupBySQL = `date_trunc('hour', reading_timestamp)`;
+        } else if (interval === '1d') {
+            groupBySQL = `date_trunc('day', reading_timestamp)`;
+        } else {
             return res.status(400).json({
                 message: 'interval tidak valid. Pilih: 1m, 5m, 15m, 1h, atau 1d'
             });
         }
 
-        // Raw SQL query untuk time-series aggregation (Prisma doesn't support date_trunc well)
-        const result = await prisma.$queryRaw`
+        // Use $queryRawUnsafe for dynamic SQL
+        const sql = `
             SELECT 
-                date_trunc(${pgInterval}, reading_timestamp) AS time_bucket,
+                ${groupBySQL} AS time_bucket,
                 AVG(air_temperature_k)::FLOAT AS avg_air_temp,
                 AVG(process_temperature_k)::FLOAT AS avg_process_temp,
                 AVG(rotational_speed_rpm)::FLOAT AS avg_rpm,
@@ -323,12 +315,19 @@ export const getAggregatedSensorData = async (req, res) => {
                 MAX(process_temperature_k)::FLOAT AS max_process_temp,
                 COUNT(*)::INT AS sample_count
             FROM sensor_readings
-            WHERE machine_serial = ${machine_serial}
-                AND reading_timestamp >= ${new Date(start_date)}::timestamp
-                AND reading_timestamp <= ${new Date(end_date)}::timestamp
+            WHERE machine_serial = $1
+                AND reading_timestamp >= $2::timestamp
+                AND reading_timestamp <= $3::timestamp
             GROUP BY time_bucket
             ORDER BY time_bucket ASC
         `;
+
+        const result = await prisma.$queryRawUnsafe(
+            sql,
+            machine_serial,
+            new Date(start_date),
+            new Date(end_date)
+        );
 
         res.status(200).json({
             data: result,

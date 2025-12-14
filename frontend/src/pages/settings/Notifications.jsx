@@ -1,8 +1,5 @@
-// src/pages/settings/Notifications.jsx
 import React, { useState } from 'react';
-// Button dan Link DIHAPUS dari import karena tidak lagi digunakan di header
-// import Button from '../../components/common/Button.jsx'; 
-
+import { Mail, Bell, Wrench, AlertCircle, BarChart3 } from 'lucide-react';
 
 // Data preferensi notifikasi (State Awal)
 const initialPreferences = {
@@ -13,26 +10,46 @@ const initialPreferences = {
     weeklyReports: true,
 };
 
-// DATA IKON DAN WARNA BARU (Sama seperti sebelumnya)
+// DATA IKON DAN WARNA dengan Lucide Icons
 const NotificationData = {
-    email: { icon: '✉️', color: 'text-blue-500', bgColor: 'bg-blue-50' },
-    push: { icon: '🔔', color: 'text-green-500', bgColor: 'bg-green-50' },
-    maintenance: { icon: '🛠️', color: 'text-yellow-600', bgColor: 'bg-yellow-50' }, 
-    critical: { icon: '🔴', color: 'text-red-600', bgColor: 'bg-red-50' },
-    reports: { icon: '📊', color: 'text-purple-600', bgColor: 'bg-purple-50' }, 
+    email: { 
+        Icon: Mail, 
+        color: 'text-blue-500', 
+        bgColor: 'bg-blue-50' 
+    },
+    push: { 
+        Icon: Bell, 
+        color: 'text-green-500', 
+        bgColor: 'bg-green-50' 
+    },
+    maintenance: { 
+        Icon: Wrench, 
+        color: 'text-yellow-600', 
+        bgColor: 'bg-yellow-50' 
+    }, 
+    critical: { 
+        Icon: AlertCircle, 
+        color: 'text-red-600', 
+        bgColor: 'bg-red-50' 
+    },
+    reports: { 
+        Icon: BarChart3, 
+        color: 'text-purple-600', 
+        bgColor: 'bg-purple-50' 
+    }, 
 };
-
 
 // Komponen Reusable untuk Toggle Switch
 const ToggleItem = ({ label, description, id, checked, onChange, iconType }) => {
     const iconData = NotificationData[iconType];
+    const IconComponent = iconData.Icon;
     
     return (
         <div className="flex items-start justify-between py-4 border-b last:border-b-0">
             {/* Kiri: Ikon, Judul, Deskripsi */}
             <div className="flex items-start space-x-4">
-                <div className={`p-2 rounded-full text-xl ${iconData.bgColor} ${iconData.color}`}>
-                    {iconData.icon} 
+                <div className={`p-2 rounded-full ${iconData.bgColor} ${iconData.color}`}>
+                    <IconComponent size={24} strokeWidth={2} />
                 </div>
                 
                 <div>
@@ -61,36 +78,30 @@ const ToggleItem = ({ label, description, id, checked, onChange, iconType }) => 
     );
 };
 
-
 function NotificationsPage() {
     const [preferences, setPreferences] = useState(initialPreferences);
 
     const handleChange = (e) => {
-        // 1. Perbarui state
         setPreferences(prev => {
             const newState = {
                 ...prev,
                 [e.target.id]: e.target.checked,
             };
             
-            // 2. SIMULASI AUTO-SAVE (LOGIKA UTAMA)
+            // SIMULASI AUTO-SAVE
             console.log('Auto-saving preferences:', newState);
-            // alert('Preferences updated automatically! (Simulasi API call)'); 
             
             return newState;
         });
-        
-        // Catatan: Karena state update bersifat asynchronous, logic alert() lebih baik di taruh di dalam setPreferences
     };
-    
-    // (handleSave function DIHAPUS)
 
     return (
         <div className="space-y-10">
             
-            {/* HEADER (TIDAK ADA LAGI TOMBOL SAVE DI KANAN) */}
+            {/* HEADER */}
             <div className="border-b pb-4">
                 <h2 className="text-2xl font-bold text-gray-900">Notification Preferences</h2>
+                <p className="text-gray-500 mt-2">Manage how you receive alerts and updates</p>
             </div>
             
             {/* GRUP PENGATURAN */}

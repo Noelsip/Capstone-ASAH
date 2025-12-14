@@ -134,6 +134,9 @@ exports.Prisma.USERSScalarFieldEnum = {
   name: 'name',
   user_email: 'user_email',
   user_pass: 'user_pass',
+  phone_number: 'phone_number',
+  job_title: 'job_title',
+  department: 'department',
   is_active: 'is_active',
   created_at: 'created_at',
   last_login: 'last_login'

@@ -1,47 +1,51 @@
-// src/components/common/FilterDropdown.jsx
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
-const FilterDropdown = ({ title, options, selected, onSelect }) => {
-    const [isOpen, setIsOpen] = useState(false);
+function FilterDropdown({ options, selectedOption, onSelect }) {
+    const [open, setOpen] = useState(false);
+    const ref = useRef();
 
-    const handleSelect = (option) => {
-        onSelect(option);
-        setIsOpen(false);
-    };
+  // Tutup dropdown jika klik di luar
+    useEffect(() => {
+        function handleClickOutside(event) {
+        if (ref.current && !ref.current.contains(event.target)) {
+            setOpen(false);
+        }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     return (
-        <div className="relative inline-block text-left z-20">
-            <button
-                type="button"
-                className="inline-flex justify-center items-center w-full px-4 py-2 bg-gray-100 rounded-lg text-sm text-gray-600 border border-gray-300 hover:bg-gray-200 transition-colors"
-                onClick={() => setIsOpen(!isOpen)}
-            >
-                {selected || title}
-                {/* Ikon Panah */}
-                <svg className="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-            </button>
-
-            {isOpen && (
-                <div className="absolute left-0 mt-2 w-56 origin-top-left bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                    <div className="py-1">
-                        {options.map((option) => (
-                            <button
-                                key={option}
-                                onClick={() => handleSelect(option)}
-                                className={`block w-full text-left px-4 py-2 text-sm ${
-                                    option === selected ? 'bg-primary/10 text-primary font-medium' : 'text-gray-700 hover:bg-gray-100'
-                                }`}
-                            >
-                                {option}
-                            </button>
-                        ))}
-                    </div>
+        <div className="relative" ref={ref}>
+        <button
+            type="button"
+            className="flex items-center px-4 py-2 bg-gray-100 rounded-lg border border-gray-200 text-gray-700 min-w-[120px]"
+            onClick={() => setOpen((v) => !v)}
+        >
+            {/* Selalu tampilkan label yang dipilih */}
+            <span>{selectedOption}</span>
+            <svg className="ml-2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path d="M19 9l-7 7-7-7" />
+            </svg>
+        </button>
+        {open && (
+            <div className="absolute z-10 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg w-full">
+            {options.map(option => (
+                <div
+                key={option}
+                className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${option === selectedOption ? 'font-bold' : ''}`}
+                onClick={() => {
+                    onSelect(option);
+                    setOpen(false);
+                }}
+                >
+                {option}
                 </div>
-            )}
+            ))}
+            </div>
+        )}
         </div>
     );
-};
+}
 
 export default FilterDropdown;

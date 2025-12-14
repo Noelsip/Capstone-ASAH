@@ -27,14 +27,17 @@ model ROLES {
 }
 
 model USERS {
-  id         String    @id @default(uuid()) @db.Uuid
-  role_id    String    @db.Uuid
-  name       String    @db.VarChar(255)
-  user_email String    @unique @db.VarChar(255)
-  user_pass  String    @db.VarChar(255)
-  is_active  Boolean   @default(true)
-  created_at DateTime  @default(now())
-  last_login DateTime?
+  id           String    @id @default(uuid()) @db.Uuid
+  role_id      String    @db.Uuid
+  name         String    @db.VarChar(255)
+  user_email   String    @unique @db.VarChar(255)
+  user_pass    String    @db.VarChar(255)
+  phone_number String?   @db.VarChar(50)
+  job_title    String?   @db.VarChar(100)
+  department   String?   @db.VarChar(100)
+  is_active    Boolean   @default(true)
+  created_at   DateTime  @default(now())
+  last_login   DateTime?
 
   // Relations
   role                   ROLES                    @relation("RoleToUsers", fields: [role_id], references: [id])
@@ -121,16 +124,10 @@ model SENSOR_READINGS {
   machine     MACHINES      @relation(fields: [machine_serial], references: [serial])
   predictions PREDICTIONS[]
 
-<<<<<<< HEAD
   @@index([machine_serial], map: "idx_sensor_machine")
   @@index([reading_timestamp], map: "idx_sensor_timestamp")
   @@index([machine_serial, reading_timestamp], map: "idx_sensor_machine_timestamp")
   @@index([reading_timestamp(sort: Desc)], map: "idx_sensor_timestamp_desc")
-=======
-  @@index([machine_serial])
-  @@index([reading_timestamp])
-  @@index([machine_serial, reading_timestamp])
->>>>>>> 54629d415319309c0482797d63f8f8a89e84480a
   @@map("sensor_readings")
 }
 

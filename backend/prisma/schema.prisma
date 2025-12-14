@@ -32,6 +32,9 @@ model USERS {
   name        String @db.VarChar(255)
   user_email  String @unique @db.VarChar(255)
   user_pass   String @db.VarChar(255)
+  phone_number  String?   @db.VarChar(50)
+  job_title     String?   @db.VarChar(100)
+  department    String?   @db.VarChar(100)
   is_active   Boolean @default(true)
   created_at  DateTime @default(now())
   last_login  DateTime?

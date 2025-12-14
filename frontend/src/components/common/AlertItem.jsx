@@ -1,4 +1,3 @@
-// src/components/common/AlertItem.jsx
 import React from 'react';
 
 function AlertItem({ title, equipment, time, type }) {

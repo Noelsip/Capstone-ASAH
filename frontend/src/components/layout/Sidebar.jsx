@@ -1,16 +1,16 @@
-// src/components/layout/Sidebar.jsx
 import React from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
+import { Home, Wrench, AlertTriangle, Bot, Settings, LogOut } from 'lucide-react';
 
 // Data Navigasi Digabung: Semua link disatukan, Settings & Logout di bagian bawah
 const navItems = [
-  { name: 'Dashboard', path: '/dashboard', icon: '🏠' },
-  { name: 'Equipment', path: '/equipment', icon: '⚙️' },
-  { name: 'Alerts', path: '/alerts', icon: '🚨' },
-  { name: 'AI Chat', path: '/ai-assistant', icon: '🤖' },
-  // --- Navigasi Bawah Dinaikkan ---
-  { name: 'Personal Settings', path: '/settings', icon: '⚙️', isSettings: true }, 
-  { name: 'Logout', path: '/login', icon: '🚪', isLogout: true },
+  { name: 'Dashboard', path: '/dashboard', icon: Home },
+  { name: 'Equipment', path: '/equipment', icon: Wrench },
+  { name: 'Alerts', path: '/alerts', icon: AlertTriangle },
+  { name: 'AI Chat', path: '/ai-assistant', icon: Bot },
+  // --- Navigasi Bawah ---
+  { name: 'Personal Settings', path: '/settings', icon: Settings, isSettings: true }, 
+  { name: 'Logout', path: '/login', icon: LogOut, isLogout: true },
 ];
 
 function Sidebar() {
@@ -31,6 +31,8 @@ function Sidebar() {
       {/* 2. Navigasi Utama yang Digabung (Semua Link) */}
       <nav className="flex-1 px-4 py-6 space-y-2">
         {navItems.map((item) => {
+          const IconComponent = item.icon;
+          
           // Logika untuk menampilkan garis pemisah sebelum Personal Settings
           if (item.isSettings) {
             return (
@@ -48,7 +50,7 @@ function Sidebar() {
                         ${isActive ? 'bg-primary text-white shadow-lg' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}`
                     }
                 >
-                  <span className="mr-3 text-lg">{item.icon}</span>
+                  <IconComponent size={20} className="mr-3" strokeWidth={2} />
                   {item.name}
                 </NavLink>
               </React.Fragment>
@@ -67,7 +69,7 @@ function Sidebar() {
                     }`
                 }
             >
-              <span className="mr-3 text-lg">{item.icon}</span>
+              <IconComponent size={20} className="mr-3" strokeWidth={2} />
               {item.name}
             </NavLink>
           );

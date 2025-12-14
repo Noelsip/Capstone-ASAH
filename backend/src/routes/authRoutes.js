@@ -10,5 +10,6 @@ router.post('/login', authRateLimiter, auth.login);
 
 // Protected routes
 router.get('/profile', authenticate, auth.getProfile);
+router.put('/profile', authenticate, auth.updateProfile);
 
 export default router;

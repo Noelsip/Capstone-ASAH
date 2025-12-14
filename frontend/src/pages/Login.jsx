@@ -15,9 +15,10 @@ function LoginPage() {
 
   // Fungsi untuk validasi password 
   const validatePassword = (pwd) => {
-    // Regex: Minimal 6 huruf, minimal 1 huruf besar, 1 huruf kecil, dan 1 angka
-    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$/;
-    return regex.test(pwd);
+    if (pwd.length < 6) {
+      return 'Password minimal 6 karakter';
+    }
+    return null;
   };
 
   const handleLoginSubmit = async (e) => {
@@ -33,13 +34,13 @@ function LoginPage() {
     }
 
     // 2. Cek Validasi Password 
-    if (!validatePassword(password)) {
-      setError(
-        'Password harus minimal 6 karakter, mengandung kombinasi huruf besar, huruf kecil, dan angka.'
-      );
-      setIsLoading(false);
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
       return;
     }
+
+    setIsLoading(true);
 
     try {
       const res = await fetch(`${BASE_URL}/auth/login`, {
@@ -50,18 +51,12 @@ function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
+      const data = await res.json();
       if (!res.ok) {
-        // coba ambil pesan error dari backend
-        let msg = 'Login gagal. Periksa kembali email dan kata sandi Anda.';
-        try {
-          const data = await res.json();
-          if (data?.message) msg = data.message;
-        } catch (_) {}
-        throw new Error(msg);
+        throw new Error(data.message || 'Login gagal');
       }
 
-      const data = await res.json();
-      // Contoh: backend mengirim { token, user }
+      // Simpan token dan user data
       if (data.token) {
         localStorage.setItem('authToken', data.token);
       }
@@ -69,7 +64,7 @@ function LoginPage() {
         localStorage.setItem('authUser', JSON.stringify(data.user));
       }
 
-      // Redirect setelah login berhasil
+      console.log('Login berhasil:', data);
       navigate('/dashboard');
     } catch (err) {
       setError(err.message || 'Terjadi kesalahan saat login.');

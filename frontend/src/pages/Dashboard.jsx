@@ -3,17 +3,9 @@ import StatCard from '../components/common/StatCard.jsx';
 import AlertItem from '../components/common/AlertItem.jsx'; 
 import { Line } from 'react-chartjs-2'; 
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
-
+import { Cpu, Bell, Thermometer, Activity } from 'lucide-react';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
-
-
-const Icons = {
-  Equipment: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18zM15 10.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zm-7.5 0a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM12 17.25a6.75 6.75 0 01-6.75-6.75h13.5a6.75 6.75 0 01-6.75 6.75z" /></svg>`,
-  Alerts: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.332 7.026 7.026 0 01-4.354 1.488c-1.616 0-3.18-0.384-4.52-1.077m0 0l-1.01-1.286-1.579-2.008H5.733A8.995 8.995 0 013 14.25c0-2.67.65-5.328 1.83-7.585 1.18-2.257 3.018-4.148 5.275-5.328 2.257-1.18 4.757-1.785 7.257-1.785a9.004 9.004 0 016.364 2.636 9.004 9.004 0 012.636 6.364c0 2.499-0.58 4.999-1.76 7.257-1.18 2.257-3.018 4.148-5.275 5.328-2.257 1.18-4.757 1.785-7.257 1.785A23.87 23.87 0 004.5 18.75m0-11.25a4.5 4.5 0 109 0 4.5 4.5 0 00-9 0z" /></svg>`,
-  Temperature: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v18m0-18A6 6 0 006 9c0 4.5 6 9 6 9v-9z" /></svg>`,
-  Vibration: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M10.025 15a1.5 1.5 0 10-3 0 1.5 1.5 0 003 0zm0 0v-4.5m-3 4.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zm0 0v-4.5m3-3a1.5 1.5 0 10-3 0 1.5 1.5 0 003 0zm0 0V8.25m-3 3a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zm0 0V8.25m3-3a1.5 1.5 0 10-3 0 1.5 1.5 0 003 0zm0 0V2.25m-3 3a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zm0 0V2.25m3 3a1.5 1.5 0 10-3 0 1.5 1.5 0 003 0zm0 0V8.25" /></svg>`,
-};
 
 // 3. Mock Data untuk Grafik
 const temperatureData = {
@@ -47,10 +39,46 @@ const vibrationData = {
 
 // 4. Mock Data untuk Kartu Statistik 
 const dashboardStats = [
-  { id: 1, title: 'Equipment Status', value: '94%', unit: '', description: 'Operational', icon: Icons.Equipment, color: 'text-status-success', bgColor: 'bg-green-50' },
-  { id: 2, title: 'Active Alerts', value: 3, unit: '', description: 'Critical issues', icon: Icons.Alerts, color: 'text-status-critical', bgColor: 'bg-red-50' },
-  { id: 3, title: 'Avg Temperature', value: 72, unit: '°F', description: 'Normal range', icon: Icons.Temperature, color: 'text-primary', bgColor: 'bg-blue-50' },
-  { id: 4, title: 'Avg Vibration', value: 0.8, unit: 'mm/s', description: 'Normal range', icon: Icons.Vibration, color: 'text-status-success', bgColor: 'bg-yellow-50' },
+  { 
+    id: 1, 
+    title: 'Equipment Status', 
+    value: '94%', 
+    unit: '', 
+    description: 'Operational', 
+    icon: Cpu, 
+    color: 'text-status-success', 
+    bgColor: 'bg-green-50' 
+  },
+  { 
+    id: 2, 
+    title: 'Active Alerts', 
+    value: 3, 
+    unit: '', 
+    description: 'Critical issues', 
+    icon: Bell, 
+    color: 'text-status-critical', 
+    bgColor: 'bg-red-50' 
+  },
+  { 
+    id: 3, 
+    title: 'Avg Temperature', 
+    value: 72, 
+    unit: '°F', 
+    description: 'Normal range', 
+    icon: Thermometer, 
+    color: 'text-primary', 
+    bgColor: 'bg-blue-50' 
+  },
+  { 
+    id: 4, 
+    title: 'Avg Vibration', 
+    value: 0.8, 
+    unit: 'mm/s', 
+    description: 'Normal range', 
+    icon: Activity, 
+    color: 'text-status-success', 
+    bgColor: 'bg-yellow-50' 
+  },
 ];
 
 // 5. Data Alerts
@@ -61,7 +89,6 @@ const recentAlerts = [
     { id: 4, title: 'Pressure Reading Normal', equipment: 'Boiler #D-004', time: '18 mins ago', type: 'Normal' },
     { id: 5, title: 'Scheduled Inspection', equipment: 'Turbine #E-005', time: '3 hours ago', type: 'Warning' },
 ];
-
 
 function DashboardPage() {
   return (

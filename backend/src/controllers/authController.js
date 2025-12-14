@@ -126,6 +126,111 @@ const getProfile = async (req, res) => {
     }
 }
 
+const updateProfile = async (req, res) => {
+    try {
+        const { name, email, currentPassword, newPassword } = req.body;
+        const userId = req.user.id;
+
+        // Validasi input - minimal ada satu field yang diupdate
+        if (!name && !email && !newPassword) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Tidak ada data yang akan diupdate'
+            });
+        }
+
+        // Jika update email, cek apakah email sudah digunakan
+        if (email && email !== req.user.email) {
+            const existingUser = await prisma.uSERS.findUnique({
+                where: { user_email: email.trim().toLowerCase() }
+            });
+
+            if (existingUser) {
+                return res.status(400).json({
+                    status: 'error',
+                    message: 'Email sudah digunakan oleh user lain'
+                });
+            }
+        }
+
+        // Jika update password, verifikasi password lama
+        if (newPassword) {
+            if (!currentPassword) {
+                return res.status(400).json({
+                    status: 'error',
+                    message: 'Password lama harus diisi untuk mengubah password'
+                });
+            }
+
+            // Validasi panjang password baru (PINDAHKAN KE DALAM IF newPassword)
+            if (newPassword.length < 8) {
+                return res.status(400).json({
+                    status: 'error',
+                    message: 'Password baru minimal 8 karakter'
+                });
+            }
+
+            // Get user dengan password
+            const user = await prisma.uSERS.findUnique({
+                where: { id: userId }
+            });
+
+            // Verifikasi password lama
+            const isPasswordValid = await bcrypt.compare(currentPassword, user.user_pass);
+            if (!isPasswordValid) {
+                return res.status(401).json({
+                    status: 'error',
+                    message: 'Password lama tidak sesuai'
+                });
+            }
+        }
+
+        // Prepare data untuk update (HANYA field yang ada di schema USERS)
+        const updateData = {};
+        
+        if (name) updateData.name = name.trim();
+        if (email) updateData.user_email = email.trim().toLowerCase();
+        
+        if (newPassword) {
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+            updateData.user_pass = hashedPassword;
+        }
+
+        // Update user
+        const updatedUser = await prisma.uSERS.update({
+            where: { id: userId },
+            data: updateData,
+            select: {
+                id: true,
+                name: true,
+                user_email: true,
+                is_active: true,
+                created_at: true,
+                last_login: true,
+                role: {
+                    select: {
+                        role_name: true,
+                        role_desc: true
+                    }
+                }
+            }
+        });
+
+        return res.status(200).json({
+            status: 'success',
+            message: 'Profile berhasil diupdate',
+            data: updatedUser
+        });
+
+    } catch (error) {
+        console.error('Error during update profile:', error);
+        return res.status(500).json({
+            status: 'error',
+            message: 'Terjadi kesalahan saat mengupdate profile'
+        });
+    }
+};
+
 // Helper function untuk mendapatkan default role
 async function getDefaultRoleId() {
     const defaultRole = await prisma.rOLES.findFirst({
@@ -144,5 +249,6 @@ async function getDefaultRoleId() {
 export default {
     login,
     getProfile,
-    getDefaultRoleId
+    getDefaultRoleId,
+    updateProfile
 }
