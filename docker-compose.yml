@@ -33,7 +33,7 @@ services:
         - pgdata:/var/lib/postgresql/data
 
     # Service for React frontend (served by Nginx)
-    frontend:
+    frontend-asah:
       build:
         context: ./frontend
         dockerfile: Dockerfile
