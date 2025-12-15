@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:6080';
+const BASE_URL = '/api';
 
 function getToken() {
     return localStorage.getItem('authToken') || '';
