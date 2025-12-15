@@ -226,6 +226,7 @@ model ALERT_ACKNOWLEDGEMENTS {
   @@index([alert_id])
   @@index([acknowledged_by])
   @@index([acknowledged_at])
+  @@unique([alert_id])
   @@map("alert_acknowledgements")
 }
 

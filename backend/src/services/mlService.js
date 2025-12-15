@@ -17,29 +17,29 @@ class MLService {
         const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
         try {
-        const response = await fetch(url, {
-            ...options,
-            signal: controller.signal,
-            headers: {
-            'Content-Type': 'application/json',
-            ...options.headers
+            const response = await fetch(url, {
+                ...options,
+                signal: controller.signal,
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                }
+            });
+
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
             }
-        });
 
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-        }
-
-        return await response.json();
+            return await response.json();
         } catch (error) {
-        clearTimeout(timeoutId);
-        if (error.name === 'AbortError') {
-            throw new Error('Request timeout');
-        }
-        throw error;
+            clearTimeout(timeoutId);
+            if (error.name === 'AbortError') {
+                throw new Error('Request timeout');
+            }
+            throw error;
         }
     }
 
@@ -50,33 +50,37 @@ class MLService {
      */
     async predictMaintenance(sensorData) {
         try {
-        const payload = {
-            air_temperature: sensorData.air_temperature_k,
-            process_temperature: sensorData.process_temperature_k,
-            rotational_speed: sensorData.rotational_speed_rpm,
-            torque: sensorData.torque_nm,
-            tool_wear: sensorData.tool_wear_min
-        };
+            // Pastikan payload sesuai dengan MachineInput yang diharapkan ML API
+            const payload = {
+                UDI: sensorData.UDI,
+                Product_ID: String(sensorData.Product_ID),
+                Type: sensorData.Type,
+                Air_temperature_K: sensorData.Air_temperature_K,
+                Process_temperature_K: sensorData.Process_temperature_K,
+                Rotational_speed_rpm: sensorData.Rotational_speed_rpm,
+                Torque_Nm: sensorData.Torque_Nm,
+                Tool_wear_min: sensorData.Tool_wear_min
+            };
 
-        console.log('Sending prediction request:', payload);
+            console.log('Sending prediction request:', payload);
 
-        const data = await this.fetchWithTimeout(this.predictUrl, {
-            method: 'POST',
-            body: JSON.stringify(payload)
-        });
+            const data = await this.fetchWithTimeout(this.predictUrl, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
 
-        console.log('Prediction response:', data);
+            console.log('Prediction response:', data);
 
-        return {
-            success: true,
-            data: data
-        };
+            return {
+                success: true,
+                data: data
+            };
         } catch (error) {
-        console.error('ML Prediction API Error:', error.message);
-        return {
-            success: false,
-            error: error.message
-        };
+            console.error('ML Prediction API Error:', error.message);
+            return {
+                success: false,
+                error: error.message
+            };
         }
     }
 
@@ -87,29 +91,27 @@ class MLService {
      */
     async askChatbot(question) {
         try {
-        const payload = {
-            question: question
-        };
+            const payload = {
+                question: question
+            };
 
-        console.log('Sending chatbot request:', payload);
+            console.log('Sending chatbot request:', payload);
 
-        const data = await this.fetchWithTimeout(this.chatbotUrl, {
-            method: 'POST',
-            body: JSON.stringify(payload)
-        });
+            const data = await this.fetchWithTimeout(this.chatbotUrl, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
 
-        console.log('Chatbot response:', data);
+            console.log('Chatbot response:', data);
 
-        return {
-            success: true,
-            data: data
-        };
+            return {
+                data: data
+            };
         } catch (error) {
-        console.error('Chatbot API Error:', error.message);
-        return {
-            success: false,
-            error: error.message
-        };
+            console.error('Chatbot API Error:', error.message);
+            return {
+                error: error.message
+            };
         }
     }
 }

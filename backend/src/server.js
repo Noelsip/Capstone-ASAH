@@ -7,6 +7,8 @@ import chatbotRoutes from './routes/chatRoutes.js';
 import machineRoutes from './routes/machineRoutes.js';
 import predictionRoutes from './routes/predictionRoutes.js';
 import sensorRoutes from './routes/sensorRoutes.js';
+import alertRoutes from './routes/alertRoutes.js';
+import dashboardRoutes from './routes/dashboardRoutes.js';
 
 const app = express();
 
@@ -68,6 +70,8 @@ app.use('/machines', machineRoutes);
 app.use('/sensor-data', sensorRoutes);
 app.use('/predictions', predictionRoutes);
 app.use('/chatbot', chatbotRoutes);
+app.use('/alerts', alertRoutes);
+app.use('/dashboard', dashboardRoutes);
 
 // 404 handler
 app.use((req, res) => {

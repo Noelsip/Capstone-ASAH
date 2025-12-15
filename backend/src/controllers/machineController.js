@@ -2,6 +2,25 @@ import { PrismaClient } from '../generated/prisma/index.js';
 
 const prisma = new PrismaClient();
 
+function stringifyBigInts(obj) {
+    if (Array.isArray(obj)) {
+        return obj.map(stringifyBigInts);
+    } else if (obj && typeof obj === 'object') {
+        const newObj = {};
+        for (const key in obj) {
+            if (typeof obj[key] === 'bigint') {
+                newObj[key] = obj[key].toString();
+            } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+                newObj[key] = stringifyBigInts(obj[key]);
+            } else {
+                newObj[key] = obj[key];
+            }
+        }
+        return newObj;
+    }
+    return obj;
+}
+
 /**
  * Mendapatkan semua mesin
  * GET /machines?status=active&location=Plant1
@@ -56,7 +75,7 @@ export const getMachines = async (req, res) => {
         }));
 
         res.status(200).json({
-            data: serializedMachines
+            data: stringifyBigInts(serializedMachines)
         });
 
     } catch (error) {
@@ -113,7 +132,7 @@ export const getMachineDetail = async (req, res) => {
         }));
 
         res.status(200).json({
-            data: {
+            data: stringifyBigInts({
                 serial: machine.serial,
                 product_id: machine.product_id,
                 name: machine.name,
@@ -127,7 +146,7 @@ export const getMachineDetail = async (req, res) => {
                 recent_sensors: serializedSensorReadings,
                 recent_alerts: machine.alerts,
                 recent_maintenance: machine.maintenance_logs
-            }
+            })
         });
 
     } catch (error) {

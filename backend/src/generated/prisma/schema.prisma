@@ -223,6 +223,7 @@ model ALERT_ACKNOWLEDGEMENTS {
   alert ALERTS @relation(fields: [alert_id], references: [id])
   user  USERS  @relation(fields: [acknowledged_by], references: [id])
 
+  @@unique([alert_id])
   @@index([alert_id])
   @@index([acknowledged_by])
   @@index([acknowledged_at])

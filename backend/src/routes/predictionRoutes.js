@@ -8,4 +8,6 @@ const router = express.Router();
 router.post('/analize', authMiddleware.authenticate, predictionController.analyzeMaintenance)
 router.get('/', authMiddleware.authenticate, predictionController.getPredictions);
 router.get('/latest', authMiddleware.authenticate, predictionController.getLatestPrediction);
+router.get('/:id', authMiddleware.authenticate, predictionController.getPredictionDetail);
+
 export default router;

@@ -24298,16 +24298,16 @@ export namespace Prisma {
 
   export type ALERT_ACKNOWLEDGEMENTSWhereUniqueInput = Prisma.AtLeast<{
     id?: bigint | number
+    alert_id?: string
     AND?: ALERT_ACKNOWLEDGEMENTSWhereInput | ALERT_ACKNOWLEDGEMENTSWhereInput[]
     OR?: ALERT_ACKNOWLEDGEMENTSWhereInput[]
     NOT?: ALERT_ACKNOWLEDGEMENTSWhereInput | ALERT_ACKNOWLEDGEMENTSWhereInput[]
-    alert_id?: StringFilter<"ALERT_ACKNOWLEDGEMENTS"> | string
     acknowledged_by?: UuidFilter<"ALERT_ACKNOWLEDGEMENTS"> | string
     acknowledged_note?: StringNullableFilter<"ALERT_ACKNOWLEDGEMENTS"> | string | null
     acknowledged_at?: DateTimeFilter<"ALERT_ACKNOWLEDGEMENTS"> | Date | string
     alert?: XOR<ALERTSScalarRelationFilter, ALERTSWhereInput>
     user?: XOR<USERSScalarRelationFilter, USERSWhereInput>
-  }, "id">
+  }, "id" | "alert_id">
 
   export type ALERT_ACKNOWLEDGEMENTSOrderByWithAggregationInput = {
     id?: SortOrder
