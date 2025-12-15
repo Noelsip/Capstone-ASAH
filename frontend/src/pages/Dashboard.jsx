@@ -1,159 +1,293 @@
-import React from 'react';
-import StatCard from '../components/common/StatCard.jsx';
-import AlertItem from '../components/common/AlertItem.jsx'; 
-import { Line } from 'react-chartjs-2'; 
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
-import { Cpu, Bell, Thermometer, Activity } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import StatCard from "../components/common/StatCard.jsx";
+import AlertItem from "../components/common/AlertItem.jsx";
+import { Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+} from "chart.js";
+import { Cpu, Bell, Thermometer, Activity } from "lucide-react";
+import { getDashboardSummary, getDashboardTrends } from "../api/dashboard";
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
-
-// 3. Mock Data untuk Grafik
-const temperatureData = {
-  labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'],
-  datasets: [
-    {
-      label: 'Temperature (°F)',
-      data: [68, 70, 72, 75, 74, 71, 69], 
-      borderColor: '#1a73e8', 
-      backgroundColor: 'rgba(26, 115, 232, 0.1)',
-      tension: 0.4,
-      pointRadius: 5,
-    },
-  ],
-};
-
-// 3. Mock Data untuk Grafik Vibrasi 
-const vibrationData = {
-  labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'],
-  datasets: [
-    {
-      label: 'Vibration (mm/s)',
-      data: [0.7, 0.8, 0.9, 0.85, 0.75, 0.8, 0.7], 
-      borderColor: '#ff9800', 
-      backgroundColor: 'rgba(255, 152, 0, 0.1)',
-      tension: 0.4,
-      pointRadius: 5,
-    },
-  ],
-};
-
-// 4. Mock Data untuk Kartu Statistik 
-const dashboardStats = [
-  { 
-    id: 1, 
-    title: 'Equipment Status', 
-    value: '94%', 
-    unit: '', 
-    description: 'Operational', 
-    icon: Cpu, 
-    color: 'text-status-success', 
-    bgColor: 'bg-green-50' 
-  },
-  { 
-    id: 2, 
-    title: 'Active Alerts', 
-    value: 3, 
-    unit: '', 
-    description: 'Critical issues', 
-    icon: Bell, 
-    color: 'text-status-critical', 
-    bgColor: 'bg-red-50' 
-  },
-  { 
-    id: 3, 
-    title: 'Avg Temperature', 
-    value: 72, 
-    unit: '°F', 
-    description: 'Normal range', 
-    icon: Thermometer, 
-    color: 'text-primary', 
-    bgColor: 'bg-blue-50' 
-  },
-  { 
-    id: 4, 
-    title: 'Avg Vibration', 
-    value: 0.8, 
-    unit: 'mm/s', 
-    description: 'Normal range', 
-    icon: Activity, 
-    color: 'text-status-success', 
-    bgColor: 'bg-yellow-50' 
-  },
-];
-
-// 5. Data Alerts
-const recentAlerts = [
-    { id: 1, title: 'Motor Bearing Temperature High', equipment: 'Pump #A-001', time: '5 min ago', type: 'Critical' },
-    { id: 2, title: 'Vibration Threshold Exceeded', equipment: 'Compressor #B-003', time: '2 hours ago', type: 'Critical' },
-    { id: 3, title: 'Maintenance Due Soon', equipment: 'Generator #C-002', time: '1 hour ago', type: 'Warning' },
-    { id: 4, title: 'Pressure Reading Normal', equipment: 'Boiler #D-004', time: '18 mins ago', type: 'Normal' },
-    { id: 5, title: 'Scheduled Inspection', equipment: 'Turbine #E-005', time: '3 hours ago', type: 'Warning' },
-];
+// Register komponen Chart.js agar grafik bisa dirender
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
 
 function DashboardPage() {
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState([]);
+  const [temperatureData, setTemperatureData] = useState(null);
+  const [vibrationData, setVibrationData] = useState(null);
+  const [alerts, setAlerts] = useState([]);
+
+  useEffect(() => {
+    // Saat pertama kali halaman dibuka, kita set loading
+    setLoading(true);
+
+    // Ambil summary dan trends secara paralel agar lebih efisien
+    Promise.all([getDashboardSummary(), getDashboardTrends()])
+      .then(([summaryRes, trendsRes]) => {
+        /**
+         * ==============================
+         * 1. NORMALISASI RESPONSE BACKEND
+         * ==============================
+         * Kita tidak boleh berasumsi struktur backend selalu lengkap.
+         * Karena itu semua akses harus aman (defensive coding).
+         */
+        const summary = summaryRes?.data || {};
+        const trendsPayload = trendsRes?.data || {};
+
+        // Backend mengirimkan trends dan recent_alerts di level root
+        const trends = trendsPayload.trends || {};
+        const recentAlerts = Array.isArray(trendsPayload.recent_alerts)
+          ? trendsPayload.recent_alerts
+          : [];
+
+        console.log("SUMMARY:", summary);
+        console.log("TRENDS:", trends);
+        console.log("ALERTS:", recentAlerts);
+
+        /**
+         * ==============================
+         * 2. STAT CARD (ANGKA RINGKAS)
+         * ==============================
+         * Untuk nilai rata-rata, kita ambil data TERAKHIR dari trend
+         * agar konsisten dengan grafik.
+         */
+        const statArr = [
+          {
+            id: "equipment_status",
+            title: "Equipment Status",
+            value: summary.equipment_status ?? "-",
+            unit: "",
+            icon: Cpu,
+          },
+          {
+            id: "total_machines",
+            title: "Total Machines",
+            value: summary.total_machines ?? "-",
+            unit: "",
+            icon: Activity,
+          },
+          {
+            id: "active_alerts",
+            title: "Active Alerts",
+            value: summary.active_alerts ?? recentAlerts.length,
+            unit: "",
+            icon: Bell,
+          },
+          {
+            id: "avg_temperature",
+            title: "Avg. Temperature",
+            value:
+              Array.isArray(trends.avg_temperature) &&
+              trends.avg_temperature.length > 0
+                ? trends.avg_temperature.at(-1)
+                : "-",
+            unit: "°C",
+            icon: Thermometer,
+          },
+          {
+            id: "avg_vibration",
+            title: "Avg. Vibration",
+            value:
+              Array.isArray(trends.avg_vibration) &&
+              trends.avg_vibration.length > 0
+                ? trends.avg_vibration.at(-1)
+                : "-",
+            unit: "mm/s",
+            icon: Activity,
+          },
+        ];
+
+        setStats(statArr);
+
+        /**
+         * ==============================
+         * 3. DATA GRAFIK (LINE CHART)
+         * ==============================
+         * Prinsip penting:
+         * - Nilai 0 adalah DATA VALID
+         * - Chart.js hanya butuh labels + datasets
+         */
+        if (Array.isArray(trends.labels) && trends.labels.length > 0) {
+          setTemperatureData({
+            labels: trends.labels,
+            datasets: [
+              {
+                label: "Avg. Temperature (°C)",
+                data: Array.isArray(trends.avg_temperature)
+                  ? trends.avg_temperature
+                  : [],
+                tension: 0.3,
+                fill: true,
+                pointRadius: 3,
+              },
+            ],
+          });
+
+          setVibrationData({
+            labels: trends.labels,
+            datasets: [
+              {
+                label: "Avg. Vibration (mm/s)",
+                data: Array.isArray(trends.avg_vibration)
+                  ? trends.avg_vibration
+                  : [],
+                tension: 0.3,
+                fill: true,
+                pointRadius: 3,
+              },
+            ],
+          });
+        } else {
+          // Jika backend belum punya data sama sekali
+          setTemperatureData(null);
+          setVibrationData(null);
+        }
+
+        /**
+         * ==============================
+         * 4. RECENT ALERTS
+         * ==============================
+         */
+        setAlerts(recentAlerts);
+      })
+      .catch((err) => {
+        console.error("Dashboard load error:", err);
+        setStats([]);
+        setTemperatureData(null);
+        setVibrationData(null);
+        setAlerts([]);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return <div className="p-8 text-center">Loading...</div>;
+  }
+
   return (
-    <div className="space-y-8">
-      
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">
-        Predictive Maintenance Dashboard
-      </h1>
-      
-      {/* ROW 1: STAT CARD (4 Kolom) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {dashboardStats.map((stat) => (
-          <StatCard key={stat.id} {...stat} />
-        ))}
-      </div>
+    <div className="w-full flex justify-center">
+      <div className="w-full max-w-7xl px-2 md:px-8 space-y-8">
+        <h1 className="text-3xl font-bold text-gray-800 mb-6">
+          Predictive Maintenance Dashboard
+        </h1>
 
-      {/* ROW 2: GRAFIK */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        
-        {/* Grafik 1: Temperature Trends */}
-        <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-800">Temperature Trends</h3>
-          <p className="text-sm text-gray-500 mb-4">Last 24 hours</p>
-          <div className="h-64">
-             <Line data={temperatureData} options={{ responsive: true, maintainAspectRatio: false }} /> 
-          </div>
-        </div>
-        
-        {/* Placeholder Grafik 2: Vibration Trends */}
-        <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-800">Vibration Trends</h3>
-          <p className="text-sm text-gray-500 mb-4">Last 24 hours</p>
-          <div className="h-64">
-             <Line data={vibrationData} options={{ responsive: true, maintainAspectRatio: false }} /> 
-          </div>
-        </div>
-
-      </div> 
-
-      {/* ROW 3: RECENT ALERTS */}
-      <div className="w-full bg-white p-6 rounded-xl shadow-lg border border-gray-100">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold text-gray-800">Recent Alerts</h3>
-          <span className="text-sm text-gray-500">
-              {recentAlerts.filter(a => a.type === 'Critical').length} Critical
-          </span>
-        </div>
-
-        <div className="space-y-4">
-          {recentAlerts.map((alert) => (
-            <AlertItem 
-              key={alert.id}
-              title={alert.title}
-              equipment={alert.equipment}
-              time={alert.time}
-              type={alert.type}
-            />
+        {/* STAT CARDS */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {stats.map((stat) => (
+            <StatCard key={stat.id} {...stat} />
           ))}
         </div>
 
-        <button className="w-full mt-6 text-primary hover:text-primary-hover font-medium">
-          View All Alerts
-        </button>
-      </div>
+        {/* GRAFIK */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          {/* Temperature Trends */}
+          <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+            <h3 className="text-lg font-semibold text-gray-800">
+              Temperature Trends
+            </h3>
+            <p className="text-sm text-gray-500 mb-4">Last 7 days</p>
+            <div className="h-64 w-full">
+              {temperatureData ? (
+                <Line
+                  data={temperatureData}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: { display: true, position: "top" },
+                    },
+                  }}
+                />
+              ) : (
+                <div className="text-gray-400 text-center pt-12">
+                  No data available.
+                </div>
+              )}
+            </div>
+          </div>
 
+          {/* Vibration Trends */}
+          <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+            <h3 className="text-lg font-semibold text-gray-800">
+              Vibration Trends
+            </h3>
+            <p className="text-sm text-gray-500 mb-4">Last 7 days</p>
+            <div className="h-64 w-full">
+              {vibrationData ? (
+                <Line
+                  data={vibrationData}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: { display: true, position: "top" },
+                    },
+                  }}
+                />
+              ) : (
+                <div className="text-gray-400 text-center pt-12">
+                  No data available.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* RECENT ALERTS */}
+        <div className="w-full bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-gray-800">
+              Recent Alerts
+            </h3>
+            <span className="text-sm text-gray-500">
+              {
+                alerts.filter(
+                  (a) => (a.severity || "").toLowerCase() === "critical"
+                ).length
+              }{" "}
+              Critical
+            </span>
+          </div>
+
+          <div className="space-y-4">
+            {alerts.length === 0 ? (
+              <div className="text-gray-400 text-center">No recent alerts.</div>
+            ) : (
+              alerts.map((alert) => (
+                <AlertItem
+                  key={alert.id}
+                  title={alert.alert_desc}
+                  equipment={alert.machine_serial}
+                  time={alert.created_at}
+                  type={alert.severity}
+                />
+              ))
+            )}
+          </div>
+
+          <button className="w-full mt-6 text-primary hover:text-primary-hover font-medium">
+            View All Alerts
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

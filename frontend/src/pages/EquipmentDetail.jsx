@@ -1,10 +1,32 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import StatCard from '../components/common/StatCard.jsx';
-import { Line } from 'react-chartjs-2';
 import { getMachine } from '../api/machines';
 import { getLatestSensor, getAggregated } from '../api/sensorData';
-import { Wrench, Thermometer, Gauge, RotateCcw } from 'lucide-react'; 
+import { Thermometer, Gauge, RotateCcw, ActivitySquare } from 'lucide-react';
+import { Line } from 'react-chartjs-2';
+import {
+    Chart as ChartJS,
+    LineElement,
+    PointElement,
+    CategoryScale,
+    LinearScale,
+    Title,
+    Tooltip,
+    Legend,
+    Filler
+} from 'chart.js';
+
+ChartJS.register(
+    LineElement,
+    PointElement,
+    CategoryScale,
+    LinearScale,
+    Title,
+    Tooltip,
+    Legend,
+    Filler
+);
 
 function EquipmentDetailPage() {
     const { equipmentId } = useParams();
@@ -30,21 +52,52 @@ function EquipmentDetailPage() {
         .then(([m, s, c]) => {
             setMachine(m && m.data ? m.data : null);
             setSensor(s && s.data ? s.data : s);
-            setChartData(
-                Array.isArray(c)
-                ? {
-                    labels: c.map(item => item.timestamp),
-                    datasets: [{
-                        label: 'Temperature (K)',
-                        data: c.map(item => item.process_temperature_k),
-                        borderColor: '#1a73e8',
-                        backgroundColor: 'rgba(26, 115, 232, 0.1)',
-                        tension: 0.4,
-                        pointRadius: 3,
-                    }]
-                  }
-                : null
+            console.log('sensor', s && s.data ? s.data : s);
+            console.log('machine', m && m.data ? m.data : m);
+
+            const chartArr = Array.isArray(c?.data) ? c.data : (Array.isArray(c) ? c : []);
+            // Gabungkan label dan value, filter hanya yang valid
+            const validPoints = chartArr
+                .map((item, idx) => {
+                    let val = item.avg_process_temp ?? item.process_temperature_k;
+                    if (typeof val === 'string') val = parseFloat(val);
+                    if (typeof val !== 'number' || isNaN(val)) return null;
+                    const label = item.time_bucket ?? item.timestamp ?? (idx + 1);
+                    if (typeof label !== 'string' && typeof label !== 'number') return null;
+                    return { label: String(label), value: val };
+                })
+                .filter(Boolean);
+
+            const filteredPoints = validPoints.filter(
+                p => typeof p.value === 'number' && !isNaN(p.value) && p.label !== undefined && p.label !== null
             );
+
+            const labels = filteredPoints.map(p => p.label);
+            const data = filteredPoints.map(p => p.value);
+
+            if (
+                labels.length > 0 &&
+                data.length > 0 &&
+                labels.length === data.length &&
+                data.every(v => typeof v === 'number' && !isNaN(v))
+            ) {
+                setChartData({
+                    labels,
+                    datasets: [
+                        {
+                            label: 'Temperature (K)',
+                            data,
+                            borderColor: '#1a73e8',
+                            backgroundColor: 'rgba(26, 115, 232, 0.1)',
+                            tension: 0.3,
+                            fill: true,
+                            pointRadius: 2,
+                        }
+                    ]
+                });
+            } else {
+                setChartData(null);
+            }
         })
         .catch(() => {
             setMachine(null);
@@ -83,22 +136,42 @@ function EquipmentDetailPage() {
                         title="Back to Equipment"
                     >
                         <RotateCcw size={20} />
-                        
                     </button>
                 </div>
                 {/* METRICS */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <StatCard title="Air Temp" value={sensor?.air_temperature_k} unit="K" />
-                    <StatCard title="Proc. Temp" value={sensor?.process_temperature_k} unit="K" />
-                    <StatCard title="Speed" value={sensor?.rotational_speed_rpm} unit="rpm" />
-                    <StatCard title="Torque" value={sensor?.torque_nm} unit="Nm" />
+                    <StatCard title="Air Temp" value={sensor?.air_temperature} unit="K" icon={Thermometer} />
+                    <StatCard title="Proc. Temp" value={sensor?.process_temperature} unit="K" icon={Thermometer} />
+                    <StatCard title="Speed" value={sensor?.rpm} unit="rpm" icon={Gauge} />
+                    <StatCard title="Torque" value={sensor?.torque} unit="Nm" icon={ActivitySquare} />
                 </div>
                 {/* CHART */}
                 <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
                     <h3 className="text-lg font-semibold text-gray-800 mb-4">Temperature Trend</h3>
                     <div className="h-64">
-                        {chartData && <Line data={chartData} options={{ responsive: true, maintainAspectRatio: false }} />}
-                        {!chartData && <div className="text-gray-400 text-center pt-12">No chart data available.</div>}
+                        {chartData && chartData.labels && chartData.datasets && chartData.datasets[0] &&
+                            Array.isArray(chartData.datasets[0].data) &&
+                            chartData.datasets[0].data.length > 0 &&
+                            chartData.datasets[0].data.every(v => typeof v === 'number' && !isNaN(v)) ? (
+                            <Line
+                                data={chartData}
+                                options={{
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: {
+                                        legend: { display: true, position: 'top' },
+                                        title: { display: false },
+                                    },
+                                    scales: {
+                                        x: { display: true, title: { display: false } },
+                                        y: { display: true, title: { display: true, text: 'Temperature (K)' } }
+                                    }
+                                }}
+                                height={250}
+                            />
+                        ) : (
+                            <div className="text-gray-400 text-center pt-12">No chart data available.</div>
+                        )}
                     </div>
                 </div>
             </div>

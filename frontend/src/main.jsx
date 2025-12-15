@@ -20,7 +20,7 @@ import DashboardPage from './pages/Dashboard.jsx';
 import EquipmentPage from './pages/Equipment.jsx';
 import EquipmentDetailPage from './pages/EquipmentDetail.jsx'; 
 import AlertsPage from './pages/Alerts.jsx';
-import AlertDetailPage from './pages/AlertDetailPage.jsx';
+// import AlertDetailPage from './pages/AlertDetailPage.jsx';
 import AIAssistantPage from './pages/AIAssistant.jsx';
 
 // --- Impor Halaman Settings 
@@ -60,10 +60,10 @@ const router = createBrowserRouter([
         path: '/alerts',
         element: <AlertsPage />,
       },
-      {
-        path: '/alerts/:alertId', 
-        element: <AlertDetailPage />,
-      },
+      // {
+      //   path: '/alerts/:alertId', 
+      //   element: <AlertDetailPage />,
+      // },
       {
         path: '/ai-assistant',
         element: <AIAssistantPage />,

@@ -5,4 +5,6 @@ export const analyzeExisting = (machine_serial) => api.post("/predictions/analiz
 export const getPredictions = (params = {}) => api.get("/predictions", { params });
 export const getLatestPrediction = (machine_serial) =>
     api.get("/predictions/latest", { params: { machine_serial } });
-export const getPredictionDetail = (id) => api.get(`/predictions/${id}`);
+export const getAlertDetail = (id) => api.get(`/alerts/${id}`);
+export const acknowledgeAlert = (id, user) =>
+    api.post(`/alerts/${id}/acknowledge`, { user });
