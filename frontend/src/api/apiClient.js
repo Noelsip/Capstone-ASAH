@@ -1,5 +1,6 @@
 const BASE_URL = '/api';
 
+
 function getToken() {
     return localStorage.getItem('authToken') || '';
 }

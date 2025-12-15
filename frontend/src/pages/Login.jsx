@@ -4,7 +4,7 @@ import loginBg from '../assets/accenture_background.jpg';
 import Button from '../components/common/Button.jsx';
 import Input from '../components/common/Input.jsx';
 
-const BASE_URL = 'http://localhost:3000'
+const BASE_URL = '/api'
 
 function LoginPage() {
   const [email, setEmail] = useState('');
