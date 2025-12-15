@@ -1,4 +1,4 @@
-  services:
+services:
     # Service for Express back-end
     backend:
       build: ./backend
@@ -16,8 +16,6 @@
         - "3000:3000"
       environment:
         - PORT=3000
-        # Prisma Database URL
-        # Match the db name with below
         - DATABASE_URL=postgresql://user:password@db:5432/maintenancedb
       depends_on:
         - db
@@ -26,17 +24,24 @@
     db:
       image: postgres:18-alpine
       ports:
-        # Map port 5432 on host if access to container is needed
         - "5432:5432"
       environment:
         POSTGRES_USER: user
         POSTGRES_PASSWORD: password
         POSTGRES_DB: maintenancedb
       volumes:
-        # Use named volumes to store database data persistently
-        # 'pgdata' is defined below
         - pgdata:/var/lib/postgresql/data
 
-  # Define named volume
-  volumes:
-    pgdata:
+    # Service for React frontend (served by Nginx)
+    frontend:
+      build:
+        context: ./frontend
+        dockerfile: Dockerfile
+      ports:
+        - "6080:80"
+        - "6443:443"
+      depends_on:
+        - backend
+
+volumes:
+  pgdata:
