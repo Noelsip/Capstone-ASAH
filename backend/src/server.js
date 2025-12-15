@@ -65,13 +65,13 @@ app.get('/health', (req, res) => {
 });
 
 // API Routes
-app.use('/auth', authRoutes);
-app.use('/machines', machineRoutes);
-app.use('/sensor-data', sensorRoutes);
-app.use('/predictions', predictionRoutes);
-app.use('/chatbot', chatbotRoutes);
-app.use('/alerts', alertRoutes);
-app.use('/dashboard', dashboardRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/machines', machineRoutes);
+app.use('/api/sensor-data', sensorRoutes);
+app.use('/api/predictions', predictionRoutes);
+app.use('/api/chatbot', chatbotRoutes);
+app.use('/api/alerts', alertRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // 404 handler
 app.use((req, res) => {

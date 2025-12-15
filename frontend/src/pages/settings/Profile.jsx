@@ -5,7 +5,7 @@ import Button from '../../components/common/Button.jsx';
 import SuccessModal from '../../components/common/SuccessModal.jsx'; // <-- 1. IMPORT MODAL
 import defaultAvatar from '../../assets/avatar-pekerja.png'; 
 
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = '/api';
 
 function ProfilePage() {
   const [profile, setProfile] = useState({
